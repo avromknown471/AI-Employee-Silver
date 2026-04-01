@@ -35,6 +35,17 @@ __pycache__/
 # VS Code
 .vscode/
 
+# Claude Code (local IDE settings)
+.claude/
+
+# MCP local config (contains machine-specific paths)
+mcp_server/claude_mcp_config.json
+
+# Vault runtime/local data
+vault/Dashboard/
+vault/Company_Handbook.md
+
 # Misc
 *.tmp
 *.log
+python
