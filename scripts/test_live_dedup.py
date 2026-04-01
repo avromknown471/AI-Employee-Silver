@@ -139,8 +139,16 @@ def test_1_single_save():
 # TEST 2 — Same content re-saved 3× → DUPLICATE_IGNORED, no new archive/NA
 # ─────────────────────────────────────────────────────────────────────────────
 
-def test_2_duplicate_saves(stem, content):
+def test_2_duplicate_saves(stem=None, content=None):
     print(f"\n=== TEST 2: 3x same-content re-saves -> DUPLICATE_IGNORED ===")
+
+    if stem is None:
+        stem = "live_test_single"
+    if content is None:
+        unique_tag = datetime.now().strftime("%Y%m%d_%H%M%S")
+        content = f"write email for bank statement\nrun_id={unique_tag}\n"
+        write_drop(f"{stem}.md", content)
+        time.sleep(CYCLE)
 
     arc_before = count_matching(ARCHIVE_DIR, stem)
 

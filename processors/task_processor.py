@@ -81,6 +81,54 @@ def is_sensitive(body):
 
 
 # ---------------------------------------------------------------------------
+# Built-in task handlers (registry)
+# ---------------------------------------------------------------------------
+
+_BANK_RE = re.compile(
+    r"\bbank\b.{0,30}\bstate?m[ae]n?t\b"
+    r"|"
+    r"\bstate?m[ae]n?t\b.{0,30}\bemail\b",
+    re.IGNORECASE,
+)
+
+
+def _match_bank_email(body):
+    """Return True if body is a request to write a bank statement email."""
+    return bool(_BANK_RE.search(_norm(body)))
+
+
+def _handle_bank_email(body, fields):
+    """Return a draft bank statement email."""
+    return (
+        "Subject: Bank Statement Request\n\n"
+        "Dear Sir/Madam,\n\n"
+        "I hope this message finds you well. I am writing to kindly request "
+        "a copy of my bank statement for the recent period. Please let me know "
+        "if any additional information or documentation is required from my end.\n\n"
+        "Thank you for your assistance.\n\n"
+        "Warm regards"
+    )
+
+
+# Registry: list of (matcher_fn, handler_fn) pairs — checked in order.
+_REGISTRY = [
+    (_match_bank_email, _handle_bank_email),
+]
+
+
+def generate_result(body, fields):
+    """
+    Try each registered handler against body.
+    Returns (result_text, True)  if a handler matched.
+    Returns (None, False)        if no handler matched (caller should use call_claude).
+    """
+    for match_fn, handle_fn in _REGISTRY:
+        if match_fn(body):
+            return handle_fn(body, fields), True
+    return None, False
+
+
+# ---------------------------------------------------------------------------
 # Claude CLI generator
 # ---------------------------------------------------------------------------
 
